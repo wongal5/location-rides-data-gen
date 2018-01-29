@@ -1,0 +1,95 @@
+CREATE KEYSPACE IF NOT EXISTS ridesmatched 
+WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+
+USE ridesmatched;
+
+DROP TABLE IF EXISTS ridesmatched.drivers;
+DROP TABLE IF EXISTS ridesmatched.cities;
+
+CREATE TABLE drivers (  
+  driver_id int,
+  price_timestamp timestamp,
+  city text,
+  pick_up_distance float,
+  ride_duration float,
+  PRIMARY KEY (driver_id, price_timestamp)
+);
+
+CREATE TABLE cities (
+  city text,
+  price_timestamp timestamp,
+  driver_id int,
+  pick_up_distance float,
+  ride_duration float,
+  PRIMARY KEY (city, price_timestamp)
+);
+
+INSERT INTO drivers (  
+  driver_id,
+  price_timestamp,
+  city,
+  pick_up_distance,
+  ride_duration
+) VALUES (  
+  1,
+  '2018-01-30T12:01:40-08:00',
+  'San Francisco', 
+  7, 
+  12
+);
+
+INSERT INTO drivers (  
+  driver_id,  
+  price_timestamp,
+  city,
+  pick_up_distance,
+  ride_duration
+) VALUES (  
+  2,
+  '2018-01-28T12:01:40-08:00',
+  'San Francisco',
+  4, 
+  11
+);
+
+INSERT INTO drivers (  
+  driver_id,
+  price_timestamp,
+  city,
+  pick_up_distance,
+  ride_duration
+) VALUES (  
+  3,
+  '2018-01-27T12:01:40-08:00',
+  'San Francisco', 
+  3, 
+  13
+);
+
+INSERT INTO drivers (  
+  driver_id,
+  price_timestamp,
+  city,
+  pick_up_distance,
+  ride_duration
+) VALUES (  
+  4,
+  '2018-01-26T12:01:40-08:00', 
+  'San Francisco', 
+  1, 
+  16
+);
+
+INSERT INTO drivers (  
+  driver_id,
+  price_timestamp,
+  city,
+  pick_up_distance,
+  ride_duration
+) VALUES (  
+  1,
+  '2018-01-21T12:01:40-08:00',
+  'San Francisco', 
+  7, 
+  1
+);
