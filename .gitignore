@@ -6,5 +6,4 @@ driveHistoryData.json
 *.rdb
 
 ## npm ##
-node_modules/
 package-lock.json
