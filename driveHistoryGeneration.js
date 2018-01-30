@@ -35,7 +35,7 @@ let driveHistoryGenerator = (numRows) => {
     console.log(i)
     // client.execute(queryDrivers, params, { prepare: true })
     //   .catch(err => {
-    //     console.log(err);
+  // console.log(err);
     //   })
     // client.execute(queryCities, params, { prepare: true })
     //   .catch(err => {
@@ -65,11 +65,11 @@ let driveHistoryGenerator = (numRows) => {
 
 
 // Builds an array of objects that will simulate how the SQS reconciled data should represent
-var inserts = JSON.stringify(driveHistoryGenerator(50000));
+var inserts = JSON.stringify(driveHistoryGenerator(100000));
 
-fs.writeFile('./driveHistoryData.txt', inserts, (err) => {
+fs.writeFile('./driveHistoryData.json', inserts, (err) => {
   if (err) { console.log('Error', err) };
-  console.log('Successful txt Write');
+  console.log('Successful JSON Write');
 })
 
 
