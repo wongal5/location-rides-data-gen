@@ -4,6 +4,7 @@ driveHistoryData.json
 *.csv
 *.err
 *.rdb
+.vscode/
 
 ## npm ##
 node_modules/
