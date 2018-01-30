@@ -10,7 +10,7 @@ CREATE TABLE drivers (
   driver_id int,
   price_timestamp timestamp,
   city text,
-  pick_up_distance int,
+  pick_up_distance float,
   ride_duration int,
   PRIMARY KEY (driver_id, price_timestamp)
 );
@@ -19,7 +19,7 @@ CREATE TABLE cities (
   city text,
   price_timestamp timestamp,
   driver_id int,
-  pick_up_distance int,
+  pick_up_distance float,
   ride_duration int,
   PRIMARY KEY (city, price_timestamp)
 );

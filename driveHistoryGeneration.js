@@ -1,77 +1,79 @@
-const cassandra = require('cassandra-driver');
-const distance = cassandra.types.distance;
+
 const moment = require('moment');
 const fs = require('fs');
-
-const client = new cassandra.Client({
-  contactPoints: ['127.0.0.1'], 
-  keyspace: 'rides_matched', 
-  pooling: {
-    coreConnectionsPerHost: {
-      [distance.local]: 2000,
-      [distance.remote]: 1
-    }
-  }
-});
+const faker = require('faker');
+const coordinates = require('./coordinates');
+const json2csv = require('json2csv');
 
 let randomNumberGenerator = (min, max) => {
-  return Math.floor(min + Math.random()*(max-min));
+  return min + Math.random()*(max-min);
 }
 
-let cities = ['sanFrancisco', 'seattle', 'omaha', 'lasVegas', 'newYork'];
 let randomCityGenerator = (driverId) => {
-  return cities[driverId%5];
+  let cities = Object.keys(coordinates);
+  return cities[driverId%cities.length];
 }
 
-let driveHistoryGenerator = (numRows) => {
-  let queryDrivers = 'INSERT INTO drivers (driver_id, price_timestamp, city, pick_up_distance, ride_duration) VALUES (?, ?, ?, ?, ?)'
-  let queryCities = 'INSERT INTO cities (driver_id, price_timestamp, city, pick_up_distance, ride_duration) VALUES (?, ?, ?, ?, ?)'
-  let params;
-  let results = [];
-  for (var i = 0; i < numRows; i++) {
-    let driverId = randomNumberGenerator(1, 100000);
-    params = [driverId, moment().subtract(Math.random()*90, 'days').format(), randomCityGenerator(driverId), randomNumberGenerator(0, 20), randomNumberGenerator(3, 30)]
-    results.push(params);
-    console.log(i)
-    // client.execute(queryDrivers, params, { prepare: true })
-    //   .catch(err => {
-  // console.log(err);
-    //   })
-    // client.execute(queryCities, params, { prepare: true })
-    //   .catch(err => {
-    //     console.log(err);
-    //   })
+let timeIntervalsVolume = () => {
+  let result = {};
+  // below peak times are in UTC adjusted for america
+  let peakTimes = [7, 8, 9, 11, 12, 13, 16, 17, 18];
+  for (var i = 0; i < 24; i++) {
+    result[i] = null;
   }
+
+  for (var keys in result) {
+    if (peakTimes.indexOf(parseInt(keys)) !== -1) {
+      result[keys] = Math.ceil(Math.random() * 6000 + 5000)
+    } else {
+      result[keys] = Math.ceil(Math.random() * 1200 + 2000)
+    }
+  }
+  // let test = Object.values(result).reduce((a,b) => {return a+b})
+
+  return result;
+}
+
+let randomTimeBetween = (start, end, daysAgo) => {
+  return moment(faker.date.between(moment().startOf('day').subtract(daysAgo, 'days').add(start, 'hour'), moment().startOf('day').subtract(daysAgo, 'days').add(end, 'hour'))).format();
+}
+
+let generateDriveHistory = (daysAgo) => {
+
+  let results = [];
+  let timeIntervals;
+  timeIntervals = timeIntervalsVolume();
+  for (let times in timeIntervals) {
+    var time = parseInt(times);
+    let test = randomTimeBetween(time, time + 1);
+    var rideVolume = timeIntervals[times];
+
+    for (var i = 0; i <= rideVolume; i++) {
+      let driverId = randomNumberGenerator(1, 100000);
+      params = {driver_id: Math.floor(driverId), price_timestamp: randomTimeBetween(time, time + 1, daysAgo),
+        city: randomCityGenerator(Math.floor(driverId)), pick_up_distance: randomNumberGenerator(0, 20).toFixed(2), ride_duration: Math.floor(randomNumberGenerator(3, 30))};
+      results.push(params);
+    }
+  }
+  
   return results;
 }
 
-// Step 1: calculate distance using getDistanceFromLatLonInKm
-// Step 2: calculate rideFare using calculateRidefare
-// Note: fare doesn't include surge multiplier
+let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
+  let inserts;
+  let csv;
+  let fields = ['driver_id', 'price_timestamp', 'city', 'pick_up_distance', 'ride_duration'];
+  for (var daysAgo = startDaysAgo; daysAgo > endDaysAgo; daysAgo--) {
+    // Builds an array of objects that will simulate how the SQS reconciled data should represent
+    inserts = generateDriveHistory(daysAgo);
+    csv = json2csv({data: inserts, fields: fields})
 
-// function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-//   var radius = 6371; // Radius of the earth in km
-//   var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-//   var dLon = deg2rad(lon2 - lon1);
-//   var a =
-//     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-//     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-//     Math.sin(dLon / 2) * Math.sin(dLon / 2)
-//     ;
-//   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//   var d = radius * c; // Distance in km
-//   return d.toFixed(2);
-// }
+    fs.writeFile('./driveHistoryData.csv', csv, (err) => {
+      if (err) { console.log('Error', err) };
+      console.log('Successful JSON Write');
+    })
 
+  }
+}
 
-// Builds an array of objects that will simulate how the SQS reconciled data should represent
-var inserts = JSON.stringify(driveHistoryGenerator(100000));
-
-fs.writeFile('./driveHistoryData.json', inserts, (err) => {
-  if (err) { console.log('Error', err) };
-  console.log('Successful JSON Write');
-})
-
-
-// console.log(moment(faker.date.between(moment(), moment().add(1, 'hour'))).format('MMMM Do YYYY, h:mm:ss a'));
-// console.log(generateRandomDrivers(coordinates));
+writeDriveHistory(89, 90);
