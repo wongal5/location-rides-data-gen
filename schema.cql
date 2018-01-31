@@ -9,19 +9,21 @@ DROP TABLE IF EXISTS rides_matched.cities;
 CREATE TABLE drivers (  
   driver_id int,
   price_timestamp timestamp,
+  trip_id uuid,
   city text,
   pick_up_distance float,
   ride_duration int,
-  PRIMARY KEY (driver_id, price_timestamp)
+  PRIMARY KEY (driver_id, price_timestamp, trip_id)
 );
 
 CREATE TABLE cities (
   city text,
   price_timestamp timestamp,
+  trip_id uuid,
   driver_id int,
   pick_up_distance float,
   ride_duration int,
-  PRIMARY KEY (city, price_timestamp)
+  PRIMARY KEY (city, price_timestamp, trip_id)
 );
 
 -- INSERT INTO drivers (  

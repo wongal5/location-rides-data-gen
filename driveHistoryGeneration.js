@@ -38,6 +38,13 @@ let randomTimeBetween = (start, end, daysAgo) => {
   return moment(faker.date.between(moment().startOf('day').subtract(daysAgo, 'days').add(start, 'hour').format('YYYY-MM-DD hh:mm:ssZ'), moment().startOf('day').subtract(daysAgo, 'days').add(end, 'hour'))).format('YYYY-MM-DD hh:mm:ssZ');
 }
 
+let uuidv4 = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 let generateDriveHistory = (daysAgo) => {
 
   let results = [];
@@ -50,7 +57,7 @@ let generateDriveHistory = (daysAgo) => {
 
     for (var i = 0; i <= rideVolume; i++) {
       let driverId = randomNumberGenerator(1, 100000);
-      params = {driver_id: Math.floor(driverId), price_timestamp: randomTimeBetween(time, time + 1, daysAgo),
+      params = {driver_id: Math.floor(driverId), price_timestamp: randomTimeBetween(time, time + 1, daysAgo), trip_id: uuidv4(),
         city: randomCityGenerator(Math.floor(driverId)), pick_up_distance: randomNumberGenerator(0, 20).toFixed(2), ride_duration: Math.floor(randomNumberGenerator(3, 30))};
       results.push(params);
     }
@@ -73,7 +80,7 @@ let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
     //     console.log('Successful JSON Write');
     //   })
     // } else {
-      fs.appendFile('./driveHistoryData.csv', csv, (err) => {
+      fs.appendFile('./driveHistoryData1.csv', csv, (err) => {
         if (err) { console.log('Error', err) };
         console.log('Successful JSON Write');
       })
@@ -82,5 +89,5 @@ let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
 
   }
 }
-
-writeDriveHistory(-1, 0);
+// for 90 days of history, run this file three times with intervals 60-90, 30-60, -1-30
+writeDriveHistory(88, 90);
