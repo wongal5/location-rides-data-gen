@@ -35,7 +35,7 @@ let timeIntervalsVolume = () => {
 }
 
 let randomTimeBetween = (start, end, daysAgo) => {
-  return moment(faker.date.between(moment().startOf('day').subtract(daysAgo, 'days').add(start, 'hour'), moment().startOf('day').subtract(daysAgo, 'days').add(end, 'hour'))).format();
+  return moment(faker.date.between(moment().startOf('day').subtract(daysAgo, 'days').add(start, 'hour').format('YYYY-MM-DD hh:mm:ssZ'), moment().startOf('day').subtract(daysAgo, 'days').add(end, 'hour'))).format('YYYY-MM-DD hh:mm:ssZ');
 }
 
 let generateDriveHistory = (daysAgo) => {
@@ -62,18 +62,25 @@ let generateDriveHistory = (daysAgo) => {
 let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
   let inserts;
   let csv;
-  let fields = ['driver_id', 'price_timestamp', 'city', 'pick_up_distance', 'ride_duration'];
   for (var daysAgo = startDaysAgo; daysAgo > endDaysAgo; daysAgo--) {
     // Builds an array of objects that will simulate how the SQS reconciled data should represent
     inserts = generateDriveHistory(daysAgo);
-    csv = json2csv({data: inserts, fields: fields})
+    csv = json2csv({data: inserts})
 
-    fs.writeFile('./driveHistoryData.csv', csv, (err) => {
-      if (err) { console.log('Error', err) };
-      console.log('Successful JSON Write');
-    })
+    // if (daysAgo === startDaysAgo) {
+    //   fs.writeFile('./driveHistoryData.csv', csv, (err) => {
+    //     if (err) { console.log('Error', err) };
+    //     console.log('Successful JSON Write');
+    //   })
+    // } else {
+      fs.appendFile('./driveHistoryData.csv', csv, (err) => {
+        if (err) { console.log('Error', err) };
+        console.log('Successful JSON Write');
+      })
+    // }
+
 
   }
 }
 
-writeDriveHistory(89, 90);
+writeDriveHistory(-1, 0);
