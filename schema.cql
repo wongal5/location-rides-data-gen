@@ -13,17 +13,10 @@ CREATE TABLE drivers (
   city text,
   pick_up_distance float,
   ride_duration int,
+  pick_up_coord set<float>,
+  drop_off_coord set<float>,
+  start_coord set<float>,
   PRIMARY KEY (driver_id, price_timestamp, trip_id)
-);
-
-CREATE TABLE cities (
-  city text,
-  price_timestamp timestamp,
-  trip_id uuid,
-  driver_id int,
-  pick_up_distance float,
-  ride_duration int,
-  PRIMARY KEY (city, price_timestamp, trip_id)
 );
 
 -- INSERT INTO drivers (  
