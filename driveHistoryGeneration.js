@@ -67,8 +67,7 @@ let generateDriveHistory = (daysAgo) => {
       let start = randomCoordinates(coordinates[city]);
       params = {
         driver_id: Math.floor(driverId), price_timestamp: randomTimeBetween(time, time + 1, daysAgo), trip_id: uuidv4(),
-        city: city, pick_up_distance: randomNumberGenerator(0, 20).toFixed(2), ride_duration: Math.floor(randomNumberGenerator(3, 30)),
-        coordinates: [start[1], start[0], pick_up[1], pick_up[0], drop_off[1], drop_off[0] ]
+        city: city, pick_up_distance: randomNumberGenerator(0, 20).toFixed(2), ride_duration: Math.floor(randomNumberGenerator(3, 30))
       //coordinates: {pick_up_lat: pick_up[1], pick_up_long: pick_up[0], drop_off_lat: drop_off[1], drop_off_long: drop_off[0], start_lat: start[1], start_long: start[0]}
       };
       results.push(params);

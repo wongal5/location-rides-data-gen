@@ -13,7 +13,6 @@ CREATE TABLE drivers (
   city text,
   pick_up_distance float,
   ride_duration int,
-  coordinates set<float>,
   PRIMARY KEY (driver_id, price_timestamp, trip_id)
 );
 
