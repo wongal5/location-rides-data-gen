@@ -62,10 +62,14 @@ let generateDriveHistory = (daysAgo) => {
     for (var i = 0; i <= rideVolume; i++) {
       let driverId = randomNumberGenerator(1, 100000);
       let city = randomCityGenerator(Math.floor(driverId));
+      let pick_up = randomCoordinates(coordinates[city]);
+      let drop_off = randomCoordinates(coordinates[city]);
+      let start = randomCoordinates(coordinates[city]);
       params = {
         driver_id: Math.floor(driverId), price_timestamp: randomTimeBetween(time, time + 1, daysAgo), trip_id: uuidv4(),
         city: city, pick_up_distance: randomNumberGenerator(0, 20).toFixed(2), ride_duration: Math.floor(randomNumberGenerator(3, 30)),
-        pick_up_coord: randomCoordinates(coordinates[city]), drop_off_coord: randomCoordinates(coordinates[city]), start_coord: randomCoordinates(coordinates[city])
+        coordinates: [start[1], start[0], pick_up[1], pick_up[0], drop_off[1], drop_off[0] ]
+      //coordinates: {pick_up_lat: pick_up[1], pick_up_long: pick_up[0], drop_off_lat: drop_off[1], drop_off_long: drop_off[0], start_lat: start[1], start_long: start[0]}
       };
       results.push(params);
     }
@@ -80,22 +84,13 @@ let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
   for (var daysAgo = startDaysAgo; daysAgo > endDaysAgo; daysAgo--) {
     // Builds an array of objects that will simulate how the SQS reconciled data should represent
     inserts = generateDriveHistory(daysAgo);
-    csv = json2csv({data: inserts})
+    csv = json2csv({data: inserts, del: '|'})
 
-    // if (daysAgo === startDaysAgo) {
-      fs.writeFile('./driveHistoryDataWithCoord.csv', csv, (err) => {
-        if (err) { console.log('Error', err) };
-        console.log('Successful JSON Write');
-      })
-    // } else {
-      // fs.appendFile('./driveHistoryData1.csv', csv, (err) => {
-      //   if (err) { console.log('Error', err) };
-      //   console.log('Successful JSON Write');
-      // })
-    // }
-
-
+    fs.appendFile('./driveHistoryDataWithCoord.csv', csv, (err) => {
+      if (err) { console.log('Error', err) };
+      console.log('Successful JSON Write');
+    })
   }
 }
 // for 90 days of history, run this file three times with intervals 60-90, 30-60, -1-30
-writeDriveHistory(89, 90);
+writeDriveHistory(-1, 30);
