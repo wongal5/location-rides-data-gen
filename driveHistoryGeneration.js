@@ -83,13 +83,12 @@ let writeDriveHistory = (endDaysAgo, startDaysAgo) => {
   for (var daysAgo = startDaysAgo; daysAgo > endDaysAgo; daysAgo--) {
     // Builds an array of objects that will simulate how the SQS reconciled data should represent
     inserts = generateDriveHistory(daysAgo);
-    csv = json2csv({data: inserts, del: '|'})
-
-    fs.appendFile('./driveHistoryDataWithCoord.csv', csv, (err) => {
+    csv = json2csv({data: inserts, hasCSVColumnTitle: false}) + '\n'
+    fs.appendFile('./driveHistoryData.csv', csv, (err) => {
       if (err) { console.log('Error', err) };
       console.log('Successful JSON Write');
     })
   }
 }
 // for 90 days of history, run this file three times with intervals 60-90, 30-60, -1-30
-writeDriveHistory(-1, 30);
+writeDriveHistory(-1, 2);
